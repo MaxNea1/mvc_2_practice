@@ -16,24 +16,24 @@ class Clients:
     def ingresarClientes(name, last_name, gender, age):
         try:
             db = Database()
-            result = db.execute('INSERT INTO tbl_users (name, last_name, gender, age), \
-                                VALUES(?,?,?,?)', (name, last_name, gender, age))
+            result = db.execute('INSERT INTO tbl_users (name, last_name, gender, age) \
+                                VALUES(?,?,?,?);', (name, last_name, gender, age))
             db.close()
             return result
         except Exception as e:
-            print('Error al ingresar cliente:', e)
+            print(f'Error al ingresar cliente: {e}')
             return []
 
 
     def updateClientes(id, name, last_name, gender, age):
         try:
             db = Database()
-            result = db.execute('UPDATE tbl_users SET name=?, last_name=?, geneder=?, age=? WHERE id=?' \
+            result = db.execute('UPDATE tbl_users SET name=?, last_name=?, gender=?, age=? WHERE id=?;' \
                                 , (name, last_name, gender, age, id))
             db.close()
             return result
         except Exception as e:
-            print('Error al actualizar cliente:', e)
+            print(f'Error al actualizar cliente: {e}')
             return []
 
     def deleteClientes(id):
@@ -45,5 +45,5 @@ class Clients:
             return result
 
         except Exception as e:
-            print('Error al eliminar cliente:', e)
+            print(f'Error al eliminar cliente: {e}')
             return []

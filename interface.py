@@ -6,6 +6,8 @@ from tkinter import ttk
 
 from connexion import *
 
+from clients import *
+
 class Form_users:
 
     global base
@@ -70,9 +72,9 @@ def Form():
         txtbox_age = Entry(groupBox)
         txtbox_age.grid(row=4, column=1)  
 
-        Button(groupBox, text='Guardar', width=10).grid(row = 5, column = 0)  
-        Button(groupBox, text='Modificar', width=10).grid(row = 5, column = 1)
-        Button(groupBox, text='Eliminar', width=10).grid(row = 5, column = 2)
+        Button(groupBox, text='Guardar', width=10, command=guardarRegistro).grid(row = 5, column = 0)  
+        Button(groupBox, text='Modificar', width=10, command=updateRegistro).grid(row = 5, column = 1)
+        Button(groupBox, text='Eliminar', width=10, command=deleteRegistro).grid(row = 5, column = 2)
 
         groupBox = LabelFrame(base, text='Lista de usuarios', padx=5, pady=5)
         groupBox.grid(row=0, column=1, padx=10, pady=10)
@@ -94,21 +96,147 @@ def Form():
         tree.pack(side=LEFT, fill=BOTH)
         vsb.pack(side=RIGHT, fill=Y)
 
+        for row in Clients.mostrarClientes():
+            tree.insert('', 'end', values=tuple(row))
+        tree.bind('<<TreeviewSelect>>', selectRegistro)
+
         base.mainloop()
     except ValueError as e:
         print(f'Error al cargar la interfaz: {e}')
 
-#def selectRegistro():
+def selectRegistro(event):
+    try:
+        item = tree.focus()
+        if item:
+            values = tree.item(item)['values']
 
-#def updateTable():
+            txtbox_id.delete(0, END)
+            txtbox_id.insert(0, values[0])
+            txtbox_name.delete(0, END)
+            txtbox_name.insert(0, values[1])
+            txtbox_lastname.delete(0, END)
+            txtbox_lastname.insert(0, values[2])    
+
+            combo.set(values[3])
+            txtbox_age.delete(0, END)
+            txtbox_age.insert(0, values[4])
+
+    except Exception as e:
+        print('Error al seleccionar registro: ', e)
+        messagebox.showerror("Error", "No se pudo seleccionar el registro")
+
+
+def updateTable():  
+    global tree
+
+
+    try:
+        tree.delete(*tree.get_children())
+
+        datos = Clients.mostrarClientes()
+
+        for row in datos:
+            tree.insert('', 'end', values=tuple(row))
+
+    except Exception as e:
+        print(f'Error al actualizar la tabla: {e}')
+        messagebox.showerror('Error', 'No se pudo actualizar la tabla.')
 
 
 
-#def guardarRegistro():
+def guardarRegistro():
+    global txtbox_name
+    global txtbox_lastname
+    global txtbox_age
+    global combo
 
-#def updateRegistro():
+    try:
+        if txtbox_name is None or txtbox_lastname is None or txtbox_age is None or combo is None: 
+            print('Los Widgets no han sido inicializados')
+            return
 
-#def deleteRegistro():
 
+        name = txtbox_name.get()
+        last_name = txtbox_lastname.get()
+        age = txtbox_age.get()
+        genero = combo.get()
+    
+        Clients.ingresarClientes(name, last_name, genero,age)
+        messagebox.showinfo("Información", "Registro guardado correctamente")
+
+        updateTable()
+
+        txtbox_name.delete(0, END)
+        txtbox_lastname.delete(0, END)  
+        txtbox_age.delete(0, END)
+    
+    except Exception as e:
+        print("Error", f"No se pudo guardar: {e}")
+        messagebox.showerror("Error", "No se pudo guardar el registro")
+
+def updateRegistro():
+    global txtbox_id
+    global txtbox_name
+    global txtbox_lastname
+    global txtbox_age
+    global combo
+    
+    try:
+        if txtbox_id is None or txtbox_name is None or txtbox_lastname is None or txtbox_age is None or combo is None:
+            messagebox.showerror('Error', 'Por favor, complete todos los campos.')
+            return
+        
+        id = txtbox_id.get()
+        name = txtbox_name.get()
+        last_name = txtbox_lastname.get()
+        gender = combo.get()
+        age = txtbox_age.get()
+
+        Clients.updateClientes(id, name, last_name, gender, age)
+        messagebox.showinfo('Exito', 'Registro actualizado correctamente.')
+
+        #Actualizar la tabla después de guardar el registro
+        updateTable()
+
+        txtbox_id.delete(0, END)
+        txtbox_name.delete(0, END)
+        txtbox_lastname.delete(0, END)
+        txtbox_age.delete(0, END) 
+        combo.set('Masculino')
+
+
+    except ValueError as error:
+        print('Error al guardar el registro: ', error)
+
+def deleteRegistro():
+    global txtbox_id
+    global txtbox_name
+    global txtbox_lastname
+    global txtbox_age
+    global combo
+    
+    try:
+        if txtbox_id is None:
+            print('Los Widgets no han sido inicializados')
+            return
+        
+        id = txtbox_id.get()
+
+        Clients.deleteClientes(id)
+        messagebox.showinfo('Exito', 'Registro eliminado correctamente.')
+
+        #Actualizar la tabla después de guardar el registro
+
+        updateTable()
+
+        txtbox_id.delete(0, END)
+        txtbox_name.delete(0, END)
+        txtbox_lastname.delete(0, END)
+        txtbox_age.delete(0, END) 
+        combo.set('Masculino')
+
+
+    except ValueError as error:
+        print('Error al guardar el registro: ', error)
 
 Form()
